@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <title>Mio sito</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+    <div id="navbar">
+        <h1>Conversione di basi</h1>
+        <div id="link">
+            <a href="home.html">Convertore di basi</a>
+            <a href="Teoria.html">Teoria</a>
+        </div>
+    </div>
+    <div id="contenuto">
+        <div id="teoria">
+            <h1>Da base 10 a base n</h1>
+            <p>
+            Per trasformare un numero <b>intero</b> da base 10 a base n
+            si fa questo procedimento:
+            </p>
+            <ul>
+                <li>Dividi il numero per la base n</li>
+                <li>
+                    Annota il quoziente e il resto 
+                    finche' il quoziente non arrivi a 0
+                </li>
+                <li>
+                    Leggi il resto al contrario
+                </li>
+            </ul>
+            <p>Esempio: 12 base 10 in base 2</p>
+            <ul>
+                <li>12 % 2 = 0</li>
+                <li>6 % 2 = 0</li>
+                <li>3 % 2 = 1</li>
+                <li>1 % 2 = 1</li>
+            </ul>    
+            <p>Quindi 12 in base 2 e' 1100</p>
+
+            <h1>Da base n a base 10</h1>
+            <p>Per convertire un numero, devi:</p>
+            <ul>
+                <li>
+                moltiplicare 
+                ogni cifra per la base n elevata alla sua 
+                posizione (partendo da 0, contando da destra 
+                verso sinistra)
+                </li>
+                <li>
+                e poi sommare tutti i risultati.
+                </li>
+            </ul> 
+            <p>Esempio: 1100 base 2 in base 10</p>   
+            <ul>
+                <li>
+                    (1 ⋅ 2 ^ 3) + (1 ⋅ 2 ^ 2) + (0 ⋅ 2 ^ 1) + (0 ⋅ 2 ^ 0)
+                </li>
+                <li>
+                    = (1 ⋅ 8) + (1 ⋅ 4) + (0 ⋅ 2) + (0 ⋅ 1)
+                </li>
+                <li>
+                    = 8 + 4 + 0 + 0
+                </li>
+                <li>
+                    = 12
+                </li>
+            </ul> 
+            <p>Quindi 1100 in base 10 e' 12</p>
+            <p></p>
+            <h1>Complemento a 1</h1>
+            <p>
+            In complemento a 1 serve per trasformare un 
+            numero base 2 in negativo. Per farlo devi:
+            </p>
+            <ul>
+                <li>
+                    Trasformare il numero in base 2, se non e' gia'
+                </li>
+                <li>
+                    Aggiungere un bit davanti al numero da trasformare
+                </li>
+                <li>
+                    Invertere tutti i bit (i 0 diventano 1 e gli 1 diventano 0)
+                </li>
+            </ul> 
+            <p>Esempio: -12</p>
+            <ul>
+                <li>
+                    12 base 10 = 1100 base 2
+                </li>
+                <li>
+                    1100 → 01100
+                </li>
+                <li>
+                    01100 → 10011
+                </li>
+            </ul> 
+            <p>
+            Questo mettodo ha un punto debole. Il 0, base 2,
+            ha 2 valori, il 0 positivo (0000 su 4 bit) e il 
+            0 negativo (1111 su 4 bit). Per evitare questo,
+            si passa al complemeno a 2
+            </p>
+            
+            <h1>Complemento a 2</h1>
+            <p>
+                Per farlo basta:
+            </p>
+            <ul>
+                <li>Fare il complemento a 1</li>
+                <li>Sommare 1</li>
+            </ul>
+            <p>Esempio: 10011</p>
+            <ul>
+                <li>10011 + 1 = 10100</li> 
+            </ul>
+            <p>
+            Con questo si evita di avere 2 valori per lo 0. 
+            Inoltre, la somma tra un numero negativo e uno
+            positivo risulta corretta:
+            </p>
+            <p>Esempio: 12 + (-12)</p>
+            <ul>
+                <li>01100 + 10100 = 1 (bit in overflow) 00000</li> 
+            </ul>
+
+            <h1>Floating point a 32 e a 64 bit</h1>
+            <p>
+                E' una forma di
+                rappresentare un numeri in base 10 con la 
+                virgola in numeri di base 2. Per farlo si deve:
+            </p>
+            <ul>
+                <li>
+                    Prima trasformare la parte intera in base 2
+                </li> 
+                <li>
+                    Spostare la virgola e contare di quante posizioni 
+                    si e' spostata
+                </li>
+                <li>
+                    Aggiungere un bias al numero di posizioni spostato (in questo caso di 127, invece a 64 bit sono 1023)
+                </li>
+                <li>
+                    Moltiplicare la parte decimale con la 
+                    base (2)
+                </li>
+                <li>
+                    memorizzare il primo numero e sottrare 1 
+                    se il primo numero e' 1. Si puo' fermarsi
+                    se dopo la moltiplicazione si arriva a un
+                    numero gia' visto, in questo caso e' periodico.
+                    Se dopo la sotrazione si arriva a 0, allora 
+                    l'intero numero e' rappresentabile
+                </li> 
+                <li>
+                    Stampare il segno (1 se negativo e 0 se positivo),
+                    l'esponente sommato con il bias, e
+                    i numeri della parte intera senza la prima cifra 
+                    (tanto e' sempre 1) con il resto dei numeri decimali.
+                    Questa parte si chiama mantissa
+                </li>
+            </ul>
+            <p>
+                Il segno e' lungo 1 bit, l'esponente 8, e 
+                la mantissa 23 bit, formando in totale 32 bit
+            </p>
+            <p>
+                Nel caso del Floating point a 64 bit, il 
+                segno e' lungo 1 bit, l'esponente 11, e la 
+                mantissa 52 bit, formando in totale 64 bit
+            </p>
+            <p>Esempio: 12.8</p>
+            <ul>
+                <li>
+                    12 base 10 → 1100 base 2
+                </li>
+                <li>
+                    1100 → 1.1 ⋅ 2 ^ 3
+                </li>
+                <li>
+                    3 + 127 = 130
+                </li>
+                <li>
+                    130 base 10 → 10000010 base 2
+                </li>
+                <li>
+                    0.8 * 2 = 1.6   
+                </li>
+                <li>
+                    0.6 * 2 = 1.2
+                </li>
+                <li>
+                    0.2 * 2 = 0.4
+                </li>
+                <li>
+                    0.4 * 2 = 0.8 1100 periodico
+                </li>
+            </ul>
+            <p>
+            numero finale: 0 | 10000010 | 11001100110011001100110
+            </p>
+            <p>
+            Questi metodi di rappresentazione di numeri decimali
+            in base 2 contiene errori a causa del cambio delle
+            basi e a causa della finitezza dei bit. 
+            </p>
+            <h2>Il bias</h2>
+            <p>
+            Il bias aggiunto all'esponente serve per rendere
+            possibile rappresentare numeri enormi e numeri 
+            piccolissimi senza aver bisogno si lasciare un 
+            bit per il segno dell'esponente. Il bias sposta
+            i numeri negativi al campo di quelli positivi, 
+            facilitando la logica dei circuiti hardware.
+            </p>
+            <p>
+            Nel floating point 32 bit, l'esponente occupa 8
+            bit, quindi la potenza massima di 2 e' 7, e 2 alla 7 - 1
+            fa 127. Stessa cosa su floating point a 64 bit, 
+            solo che l'esponente occupa 11 bit, quindi la
+            potenza massima di 2 e' 2 ^ 10, e 2 ^ 10 - 1 fa 1023.
+            Si fa sempre il -1 perche' anche lo 0 conta come positivo.
+            </p>
+        </div>
+    </div> 
+    <script src="script.js"></script>
+</body>
+</html>
