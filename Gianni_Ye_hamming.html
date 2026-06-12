@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcolatore Codice di Hamming</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --text: #1e293b;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 { font-size: 1.5rem; margin-bottom: 1.5rem; color: var(--primary); }
+
+        .input-group { margin-bottom: 1.5rem; }
+
+        label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-family: monospace;
+            font-size: 1rem;
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button:hover { opacity: 0.9; }
+
+        #result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 6px;
+            background: #eff6ff;
+            display: none;
+        }
+
+        .code-display {
+            font-family: monospace;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            word-break: break-all;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Calcolatore Hamming</h1>
+    
+    <div class="input-group">
+        <label for="inputData">Inserisci i bit di dati (es. 1011):</label>
+        <input type="text" id="inputData" placeholder="Solo 0 e 1" maxlength="16">
+    </div>
+
+    <button onclick="calculateHamming()">Genera Codice</button>
+
+    <div id="result">
+        <strong>Risultato:</strong>
+        <p id="outputCode" class="code-display"></p>
+    </div>
+</div>
+
+<script>
+
+    function calcBitParita(lunghezzaInput) {
+        let n_bitParita = 0;
+        for (let n_bP = 0; n_bP < lunghezzaInput; n_bP++) {
+            //condizione da soddisfare:
+            if (2 ** n_bP >= lunghezzaInput + n_bP + 1) {
+                n_bitParita = n_bP;
+                break;
+            }
+        }
+        return n_bitParita;
+
+        /*
+        non servirebbe andare vicino alla lunghezza dell'input, visto
+        che f(n_bP) = 2 ** n_bP e' esponenziale, percio' cresce piu' 
+        velocemente di qualsiasi funzione lineare
+        */
+    }
+
+    function aggiungiInput(arr, input, dim) {
+        let a = 0; //poteze di 2
+        let j = 0; //indice per input
+
+        for (let i = 0; i < dim; i++) {
+            if (i != 2 ** a - 1) {
+                arr[i] = input[j];
+                //se input puo' essere messo, passa al prossimo input
+                j++;
+            } else {
+                //altrimenti controlla il prossimo bit di parita'
+                a++;
+            }
+        }
+    }
+
+    function calcBitControllo(arr, dim, nBP) {
+
+        //per ogni bit di parita'
+        for (let i = 0; i < nBP; i++) {
+            let conta = 0;
+            //La posizione del bit di parità (1, 2, 4, 8...).
+            //Non e' ancora l'indice
+            let pos_bP = 2 ** i; 
+
+            /*Itera su i primi bit a destra di ogni bit di parita'
+
+            start: pos_bP - 1, perche' stimo lavorando con gli indici, quindi -1
+            stop: pos_bP < dim
+            step: 2 * pos_bP, per andare all'indice del prossimo bit
+            da controllare. E' il primo "n" di "salta n e leggi n"
+            */
+            for (let i_daControllare = pos_bP - 1; i_daControllare < dim; i_daControllare += 2 * pos_bP) {
+                
+                /*
+                Dopo esser andato su il primo bit a destra di un bit 
+                di parita', dobbiamo controllare quei n bit ancora a 
+                destra. Questo n lo chiameremmo offset
+
+                L'offset e' la distanza delle celle accanto
+                dalla prima. 
+                
+                Es: dal pos_bP di posizione 3, quindi il quarto bit, 
+                    si salta 4 (2 * pos_bP) e si legge 4 (i + 0, i + 1, i + 2, i + 3)
+                    E' il secondo "n" di "salta n e leggi n"
+                */
+                for (let offset = 0; offset < pos_bP; offset++) {
+                    let posizioneAttuale = i_daControllare + offset;
+
+                    // Verifichiamo di non uscire dall'array e che non sia il bit di parità stesso
+                    if ((posizioneAttuale < dim) && (posizioneAttuale != pos_bP - 1)) {
+                        if (arr[posizioneAttuale] == '1') {
+                            conta++;
+                        }
+                    }
+                }
+
+                if (conta % 2 == 0) {
+                    arr[pos_bP - 1] = '0';
+                } else {
+                    arr[pos_bP - 1] = '1';
+                }
+            }
+        }
+    }
+
+    function calculateHamming() {
+        const input = document.getElementById('inputData').value;
+        //let input = "11001";
+        console.log("Input: ", input);
+        const resultDiv = document.getElementById('result');
+        const outputP = document.getElementById('outputCode');
+		const hammingCode = [];
+        
+        // Validazione base
+        if (!/^[01]+$/.test(input)) {
+            alert("Per favore, inserisci solo numeri binari (0 o 1).");
+            return;
+        }
+
+        /* 
+           TODO PER GLI STUDENTI:
+           1. Calcolare il numero di bit di parità necessari (r) tale che 2^r >= m + r + 1
+           2. Creare un array con le posizioni vuote per i bit di parità (posizioni 1, 2, 4, 8...)
+           3. Inserire i bit di dati nelle restanti posizioni.
+           4. Calcolare il valore di ogni bit di parità.
+           5. Unire il tutto in una stringa finale.
+        */
+
+        /*
+        l'input e' dentro la costante input
+        l'output deve essere elaborato nel vettore hammingCode[]
+        l'output deve essere stampato nella costante outputP
+        */
+
+        //1) Calcolo della quantita' di bit di parita' necessari
+
+        let n_bitParita = calcBitParita(input.length);
+        console.log("n_bitParita: ", n_bitParita);
+
+        //2) Creare un array con le posizioni vuote per i bit di parità 
+        // (posizioni 1, 2, 4, 8...  2 ^ n)
+
+        //si deve fare questo perche' per ora hammingCode.length = 0
+        let dimArr = n_bitParita + input.length;
+
+        //3) Inserire i bit di dati nelle restanti posizioni
+        aggiungiInput(hammingCode, input, dimArr);
+        console.log("hammingCode: ", hammingCode);
+
+        
+        //4) Calcolare il valore di ogni bit di parità.
+        calcBitControllo(hammingCode, dimArr, n_bitParita);
+        console.log("hammingCode: ", hammingCode);
+        
+        //5) Unire il tutto in una stringa finale.
+        outputP.innerText = hammingCode.join('');
+        resultDiv.style.display = 'block';
+    }
+</script>
+
+</body>
+</html>

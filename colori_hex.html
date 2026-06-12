@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Pixel Art Hex Challenge</title>
+    <style>
+        body {
+            background-color: #1e1e24;
+            color: #ffffff;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 { margin-top: 0; color: #4CAF50; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+
+        .container {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+
+        table {
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* Output (Sinistra) */
+        #output-table td {
+            width: 70px;
+            height: 70px;
+            border: 1px solid #ddd;
+            transition: background-color 0.2s;
+        }
+
+        /* Input (Destra) */
+        #input-table td {
+            padding: 0;
+            border: 1px solid #ddd;
+        }
+
+        input {
+            width: 70px;
+            height: 70px;
+            text-align: center;
+            border: none;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 18px;
+            text-transform: uppercase;
+        }
+
+        input:focus { outline: 2px solid #4CAF50; background-color: #e8f5e9; }
+
+        .label { margin-bottom: 10px; font-weight: bold; color: #aaa; text-transform: uppercase; }
+
+        #parita-btn {
+            margin-top: 20px;
+            padding: 10px 25px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        #parita-btn:hover { background-color: #c0392b; }
+
+        #reset-btn {
+            margin-top: 20px;
+            padding: 10px 25px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        #reset-btn:hover { background-color: #c0392b; }
+
+  
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            background: #2d2d35;
+            padding: 15px;
+            border-radius: 10px;
+            max-width: 900px;
+            margin-top: 20px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .color-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            border: 1px solid #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Colori e figure in esadecimale</h1>
+
+    <div class="container">
+        <!-- Output a Sinistra -->
+        <div>
+            <div class="label">Anteprima (Output)</div>
+            <table id="output-table"></table>
+        </div>
+
+        <!-- Input a Destra -->
+        <div>
+            <div class="label">Codici Hex (Input)</div>
+            <table id="input-table"></table>
+        </div>
+    </div>
+
+    <button id="parita-btn" onclick="calcParita()">PARITA' DEI BIT</button>
+    <button id="reset-btn" onclick="resetGrid()">PULISCI TUTTO</button>
+
+  
+    <div class="legend">
+        <div class="legend-item"><div class="color-box" style="background:#FF0000"></div> Rosso: #FF0000</div>
+        <div class="legend-item"><div class="color-box" style="background:#00FF00"></div> Verde: #00FF00</div>
+        <div class="legend-item"><div class="color-box" style="background:#0000FF"></div> Blu: #0000FF</div>
+        <div class="legend-item"><div class="color-box" style="background:#FF00FF"></div> Magenta: #FF00FF</div>
+        <div class="legend-item"><div class="color-box" style="background:#FFFF00"></div> Giallo: #FFFF00</div>
+        <div class="legend-item"><div class="color-box" style="background:#00FFFF"></div> Azzurro: #00FFFF</div>
+        <div class="legend-item"><div class="color-box" style="background:#FFA500"></div> Arancio: #FFA500</div>
+        <div class="legend-item"><div class="color-box" style="background:#A020F0"></div> Viola: #A020F0</div>
+        <div class="legend-item"><div class="color-box" style="background:#FFFFFF"></div> Bianco: #FFFFFF</div>
+        <div class="legend-item"><div class="color-box" style="background:#000000"></div> Nero: #000000</div>
+        <div class="legend-item"><div class="color-box" style="background:#808080"></div> Grigio: #808080</div>
+    </div>
+
+    <script>
+        const size = 9;
+        const inputTable = document.getElementById('input-table');
+        const outputTable = document.getElementById('output-table');
+
+        // Generazione Griglie
+        for (let r = 0; r < size; r++) {
+            let rowIn = inputTable.insertRow();
+            let rowOut = outputTable.insertRow();
+            
+            for (let c = 0; c < size; c++) {
+                let cellOut = rowOut.insertCell();
+                cellOut.id = `out-${r}-${c}`;
+                
+                let cellIn = rowIn.insertCell();
+                let input = document.createElement('input');
+                input.type = 'text';
+                input.maxLength = 7;
+                input.id = `in-${r}-${c}`;
+                
+                input.addEventListener('input', (e) => {
+                    let val = e.target.value;
+                    if (val.length === 6 && !val.startsWith('#')) val = '#' + val;
+                    if (/^#[0-9A-F]{6}$/i.test(val)) {
+                        document.getElementById(`out-${r}-${c}`).style.backgroundColor = val;
+                    }
+                });
+
+                cellIn.appendChild(input);
+            }
+        }
+        
+
+        //disattivazione dell'input per le celle a destra e quelle in basso
+        const inputs = document.querySelectorAll('input');
+
+        for (let r = 0; r < size; r++) {
+            inputs[r * 9 + 8].disabled = true;
+            inputs[72 + r].disabled = true;
+        }
+
+
+        // Funzione Reset
+        function resetGrid() {
+            const inputs = document.querySelectorAll('input');
+            const outputs = document.querySelectorAll('#output-table td');
+            inputs.forEach(i => i.value = '');
+            outputs.forEach(o => o.style.backgroundColor = 'white');
+        }
+
+        function calcParita() {
+            const inputs = document.querySelectorAll('input'); //inputs e' un vettore
+            const outputs = document.querySelectorAll('#output-table td');
+
+            for (let r = 0; r < 8; r++) {       //ignora l'ultima riga
+                let somma = 0;
+
+                for (let c = 0; c < 8; c++) {   //ignora la colonna a destra
+                    /*
+                    Visto che inputs e' un vettore, ma vogliamo usarlo come se fosse
+                    una matrice, l'indice degli elementi del vettore sono calcolati con 
+                    i = (r * 9) + c
+                    r * 9: vuol dire "salta di 9 caselle r volte" oppure "salta r righe"
+                    c: e' lo spostamento/offset dal "primo elemento della riga"
+                    */
+                    let indice = (r * 9) + c;
+                    //parseInt() fa la string diventare un int, e inoltre riconosce che e' in base 16
+                    let n = parseInt(inputs[indice].value, 16);
+
+                    if (isNaN(n)) {
+                        n = 0;
+                    }
+			
+		            //conta quanti '1' ci sono nel numero binario
+                    n = n.toString(2);
+		            let a = 0; //numero binario di ogni cella
+
+		            for (let i = 0; i < n.length; i++) {
+			            if (n[i] == '1') {
+			                a++;
+			            }
+		            }
+                    somma += a;  
+                }
+                if (somma % 2 == 1) {
+                    //r * 9 + 8: l'elemento di ogni riga all'ottava colonna
+                    inputs[r * 9 + 8].value = "000000"; //fa diventare nero 
+                    console.log("dispari");
+                } else {
+                    inputs[r * 9 + 8].value = "FFFFFF"; //serve per quando clicca per la seconda volta
+                }
+                outputs[r * 9 + 8].style.backgroundColor = "#" + inputs[r * 9 + 8].value;
+            }
+
+            for (let c = 0; c < 8; c++) {       //ignora l'ultima riga
+                let somma = 0;
+                for (let r = 0; r < 8; r++) {
+                    let indice = (r * 9) + c;
+                    let n = parseInt(inputs[indice].value, 16);
+
+                    if (isNaN(n)) {
+                        n = 0;
+                    }
+		
+                    n = n.toString(2);
+		            let a = 0;
+
+		            for (let i = 0; i < n.length; i++) {
+			            if (n[i] == '1') {
+			                a++;
+			            }
+		            }
+                    somma += a;  
+                }
+
+
+
+                if (somma % 2 == 1) {
+                    inputs[72 + c].value = "000000";
+                    console.log("dispari");
+                } else {
+                    inputs[72 + c].value = "FFFFFF";
+                }
+                outputs[72 + c].style.backgroundColor = "#" + inputs[72 + c].value;
+            }
+
+            //Manca la cella 80
+            let s = 0;
+            //conta quante celle nere ci sono all'ultima riga
+            //la i deve escludere l'ultima cella, per questo
+            //che si scrive i < 8
+            for (let i = 0; i < 8; i++) { 
+                if (inputs[i + 72].value === "000000") {
+                    s++;
+                }
+            }
+            if (s % 2 == 1) {
+                inputs[80].value = "000000";
+            } else {
+                inputs[80].value = "FFFFFF";
+            }
+            outputs[80].style.backgroundColor = "#" + inputs[80].value;
+        }
+    </script>
+</body>
+</html>
