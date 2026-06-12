@@ -1,6 +1,6 @@
 Per tutti gli esercizi tranne Sito_conversione_tra_basi, l'interfaccia e' stata progettata dal prof
 
-Sito_conversione_tra_basi:
+### Sito_conversione_tra_basi:
  La prima pagina contiene un convertitore di basi. La seconda contiene tutta la teoria fatta dal nostro prof fino alla creazione di questo sito
 
 Gianni_Ye_hamming.html:
